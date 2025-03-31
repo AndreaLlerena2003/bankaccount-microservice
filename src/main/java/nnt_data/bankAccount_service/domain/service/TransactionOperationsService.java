@@ -1,8 +1,8 @@
-package nnt_data.bankAccount_service.infrastructure.service;
+package nnt_data.bankAccount_service.domain.service;
 
 import lombok.RequiredArgsConstructor;
-import nnt_data.bankAccount_service.infrastructure.persistence.model.AccountBaseEntity;
-import nnt_data.bankAccount_service.domain.port.TransactionOperationsPort;
+import nnt_data.bankAccount_service.infrastructure.persistence.entity.AccountBaseEntity;
+import nnt_data.bankAccount_service.application.port.TransactionOperationsPort;
 import nnt_data.bankAccount_service.domain.validator.TransactionContext;
 import nnt_data.bankAccount_service.domain.validator.factory.ValidatorFactory;
 import nnt_data.bankAccount_service.infrastructure.persistence.mapper.TransactionMapper;

@@ -254,7 +254,7 @@ components:
           type: string
         customerType:
           $ref: '#/components/schemas/CustomerType'
-        owner:
+        owners:
           type: array
           items:
             $ref: '#/components/schemas/Person'

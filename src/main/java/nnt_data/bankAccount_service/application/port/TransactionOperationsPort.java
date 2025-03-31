@@ -1,4 +1,4 @@
-package nnt_data.bankAccount_service.domain.port;
+package nnt_data.bankAccount_service.application.port;
 
 import nnt_data.bankAccount_service.model.Transaction;
 import reactor.core.publisher.Flux;

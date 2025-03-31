@@ -2,7 +2,7 @@ package nnt_data.bankAccount_service.domain.validator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import nnt_data.bankAccount_service.infrastructure.persistence.model.AccountBaseEntity;
+import nnt_data.bankAccount_service.infrastructure.persistence.entity.AccountBaseEntity;
 import nnt_data.bankAccount_service.model.Transaction;
 
 @Data

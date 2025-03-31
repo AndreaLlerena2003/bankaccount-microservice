@@ -1,4 +1,4 @@
-package nnt_data.bankAccount_service.infrastructure.persistence.model;
+package nnt_data.bankAccount_service.infrastructure.persistence.entity;
 
 
 import lombok.Data;
@@ -7,11 +7,8 @@ import lombok.Setter;
 import nnt_data.bankAccount_service.model.Transaction;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.Date;
 
 

@@ -1,4 +1,4 @@
-package nnt_data.bankAccount_service.infrastructure.persistence.model;
+package nnt_data.bankAccount_service.infrastructure.persistence.entity;
 
 import lombok.Data;
 import lombok.Getter;

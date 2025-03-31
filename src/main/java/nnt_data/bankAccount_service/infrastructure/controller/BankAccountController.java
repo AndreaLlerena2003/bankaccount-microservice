@@ -2,8 +2,8 @@ package nnt_data.bankAccount_service.infrastructure.controller;
 
 import lombok.RequiredArgsConstructor;
 import nnt_data.bankAccount_service.api.AccountsApi;
-import nnt_data.bankAccount_service.domain.port.AccountOperationsPort;
-import nnt_data.bankAccount_service.domain.port.TransactionOperationsPort;
+import nnt_data.bankAccount_service.application.port.AccountOperationsPort;
+import nnt_data.bankAccount_service.application.port.TransactionOperationsPort;
 import nnt_data.bankAccount_service.model.AccountBase;
 import nnt_data.bankAccount_service.model.Transaction;
 import org.springframework.http.HttpStatus;

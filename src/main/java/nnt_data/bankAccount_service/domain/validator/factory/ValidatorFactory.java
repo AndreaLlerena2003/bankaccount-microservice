@@ -1,7 +1,7 @@
 package nnt_data.bankAccount_service.domain.validator.factory;
 
 import lombok.RequiredArgsConstructor;
-import nnt_data.bankAccount_service.infrastructure.persistence.model.AccountBaseEntity;
+import nnt_data.bankAccount_service.infrastructure.persistence.entity.AccountBaseEntity;
 import nnt_data.bankAccount_service.domain.validator.AccountTypeValidator;
 import nnt_data.bankAccount_service.domain.validator.TransactionValidator;
 import nnt_data.bankAccount_service.domain.validator.account.CheckingAccountValidator;

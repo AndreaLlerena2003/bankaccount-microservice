@@ -2,7 +2,7 @@ package nnt_data.bankAccount_service.infrastructure.persistence.mapper;
 
 
 import lombok.RequiredArgsConstructor;
-import nnt_data.bankAccount_service.infrastructure.persistence.model.TransactionEntity;
+import nnt_data.bankAccount_service.infrastructure.persistence.entity.TransactionEntity;
 import nnt_data.bankAccount_service.model.Transaction;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;

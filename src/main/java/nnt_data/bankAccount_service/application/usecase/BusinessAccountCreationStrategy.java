@@ -24,7 +24,7 @@ public class BusinessAccountCreationStrategy implements AccountCreationStrategy 
                         "Cuentas empresariales solo pueden ser de tipo CHECKING"));
             }
             System.out.println(account);
-            if (account.getOwner() == null || account.getOwner().isEmpty()) {
+            if (account.getOwners() == null || account.getOwners().isEmpty()) {
                 System.out.println(account);
                 return Mono.error(new IllegalArgumentException(
                         "Cuenta empresarial debe tener un propietario con identificación válida"));

@@ -1,6 +1,6 @@
-package nnt_data.bankAccount_service.infrastructure.service;
+package nnt_data.bankAccount_service.domain.service;
 
-import nnt_data.bankAccount_service.domain.port.AccountOperationsPort;
+import nnt_data.bankAccount_service.application.port.AccountOperationsPort;
 import nnt_data.bankAccount_service.infrastructure.persistence.mapper.AccountMapper;
 import nnt_data.bankAccount_service.model.AccountBase;
 import nnt_data.bankAccount_service.model.CustomerType;
