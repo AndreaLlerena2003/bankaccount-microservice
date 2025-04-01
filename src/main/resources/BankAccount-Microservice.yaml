@@ -258,7 +258,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Person'
-        authorizedSignature:
+        authorizedSigners:
           type: array
           items:
             $ref: '#/components/schemas/Person'

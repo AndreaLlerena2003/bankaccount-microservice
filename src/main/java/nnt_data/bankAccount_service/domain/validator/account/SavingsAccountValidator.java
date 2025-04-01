@@ -6,6 +6,11 @@ import nnt_data.bankAccount_service.model.AccountType;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+/**
+ * SavingsAccountValidator es una implementación de AccountTypeValidator que proporciona
+ * validaciones específicas para cuentas de tipo SAVINGS. Verifica que el límite mensual de movimientos
+ * sea mayor a 0 y que no haya comisiones de mantenimiento para este tipo de cuenta.
+ */
 @Component
 public class SavingsAccountValidator implements AccountTypeValidator {
 

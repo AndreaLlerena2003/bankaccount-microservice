@@ -7,7 +7,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
-
+/**
+ * AccountCreationConfig es una clase de configuración que define los beans necesarios
+ * para las estrategias de creación de cuentas. Utiliza un mapa para asociar cada tipo
+ * de cliente con su estrategia de creación correspondiente.
+ */
 @Configuration
 public class AccountCreationConfig {
 

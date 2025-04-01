@@ -1,6 +1,7 @@
 package nnt_data.bankAccount_service.domain.service;
 
 import nnt_data.bankAccount_service.application.port.AccountOperationsPort;
+import nnt_data.bankAccount_service.application.usecase.AccountUpdateStrategy;
 import nnt_data.bankAccount_service.infrastructure.persistence.mapper.AccountMapper;
 import nnt_data.bankAccount_service.model.AccountBase;
 import nnt_data.bankAccount_service.model.CustomerType;
@@ -12,19 +13,27 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+/**
+ * AccountOperationsService es un servicio que implementa AccountOperationsPort y proporciona
+ * operaciones para la gestión de cuentas bancarias. Utiliza estrategias de creación y actualización
+ * de cuentas basadas en el tipo de cliente, así como un repositorio para la persistencia de datos.
+ */
 @Service
 public class AccountOperationsService implements AccountOperationsPort {
 
     private final Map<CustomerType, AccountCreationStrategy> creationStrategies;
     private final BankAccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final Map<CustomerType, AccountUpdateStrategy> updateStrategies;
 
     public AccountOperationsService(Map<CustomerType, AccountCreationStrategy> creationStrategies,
                                     BankAccountRepository accountRepository,
+                                    Map<CustomerType, AccountUpdateStrategy> updateStrategies,
                                     AccountMapper accountMapper) {
         this.creationStrategies = creationStrategies;
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
+        this.updateStrategies = updateStrategies;
     }
 
     @Override
@@ -63,16 +72,8 @@ public class AccountOperationsService implements AccountOperationsPort {
 
     @Override
     public Mono<AccountBase> updateAccount(String accountId,AccountBase updatedAccount) {
-        System.out.println("UPDATE BY ACCOUNT ID: " + accountId);
-        return accountRepository.existsByAccountId(accountId)
-                .flatMap(exists -> {
-                    if (!exists) {
-                        return Mono.error(new IllegalArgumentException(
-                                "No existe una cuenta con el ID: " + accountId));
-                    }
-                    updatedAccount.setAccountId(accountId);
-                    return saveAccount(updatedAccount);
-                });
+        return executeUpdateStrategy(accountId,updatedAccount)
+                .flatMap(this::saveAccount);
     }
 
     private Mono<AccountBase> executeCreationStrategy(AccountBase account) {
@@ -83,6 +84,16 @@ public class AccountOperationsService implements AccountOperationsPort {
                         .switchIfEmpty(Mono.error(
                                 new IllegalArgumentException("Tipo de cliente no soportado: " + acc.getCustomerType())))
                         .flatMap(strategy -> strategy.createAccount(acc)));
+    }
+
+    private Mono<AccountBase> executeUpdateStrategy(String accountId,AccountBase updatedAccount) {
+        return Mono.just(updatedAccount)
+                .filter(acc -> acc.getCustomerType() != null)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("El tipo de cliente no puede ser null")))
+                .flatMap(acc -> Mono.justOrEmpty(updateStrategies.get(acc.getCustomerType()))
+                        .switchIfEmpty(Mono.error(
+                                new IllegalArgumentException("Tipo de cliente no soportado: " + acc.getCustomerType())))
+                        .flatMap(strategy -> strategy.updateAccount(accountId, acc)));
     }
 
     private Mono<AccountBase> saveAccount(AccountBase account) {

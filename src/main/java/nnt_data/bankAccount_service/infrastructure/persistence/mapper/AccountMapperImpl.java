@@ -7,7 +7,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-
+/**
+ * AccountMapperImpl es una implementación de AccountMapper que proporciona métodos para mapear
+ * entre entidades de cuenta y objetos de dominio. Utiliza BeanUtils para copiar propiedades
+ * y Reactor Mono para manejar el mapeo de manera asíncrona.
+ */
 @Component
 @RequiredArgsConstructor
 public class AccountMapperImpl implements AccountMapper {

@@ -5,6 +5,11 @@ import nnt_data.bankAccount_service.model.AccountBase;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+/**
+ * FixedTermAccountValidator es una implementación de AccountTypeValidator que proporciona
+ * validaciones específicas para cuentas de tipo FIXED_TERM. Verifica que se haya especificado
+ * el día de retiro permitido.
+ */
 @Component
 public class FixedTermAccountValidator implements AccountTypeValidator {
 

@@ -11,7 +11,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.util.List;
-
+/**
+ * AccountBaseEntity es una entidad que representa una cuenta bancaria en la base de datos.
+ * Utiliza Lombok para generar automáticamente los métodos getter, setter y otros métodos útiles.
+ * La clase está anotada con @Document para indicar que es un documento de MongoDB.
+ */
 
 @Data
 @Getter

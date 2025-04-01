@@ -10,7 +10,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.util.Date;
-
+/**
+ * TransactionEntity es una entidad que representa una transacción bancaria en la base de datos.
+ * Utiliza Lombok para generar automáticamente los métodos getter, setter y otros métodos útiles.
+ * La clase está anotada con @Document para indicar que es un documento de MongoDB.
+ */
 
 @Data
 @Getter

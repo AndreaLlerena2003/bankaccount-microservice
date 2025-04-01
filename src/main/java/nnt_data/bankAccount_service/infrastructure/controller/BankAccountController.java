@@ -14,7 +14,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * BankAccountController es un controlador REST que implementa AccountsApi y proporciona
+ * endpoints para la gestión de cuentas bancarias y transacciones. Utiliza puertos de operaciones
+ * para interactuar con los servicios de cuentas y transacciones.
+ */
 @RestController
 @RequiredArgsConstructor
 public class BankAccountController implements AccountsApi {

@@ -11,7 +11,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
+/**
+ * GlobalExceptionHandler es una clase de manejo global de excepciones para controladores REST.
+ * Utiliza @RestControllerAdvice para interceptar y manejar excepciones específicas y genéricas,
+ * proporcionando respuestas adecuadas con códigos de estado HTTP y mensajes de error.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final String TIMESTAMP = "timestamp";

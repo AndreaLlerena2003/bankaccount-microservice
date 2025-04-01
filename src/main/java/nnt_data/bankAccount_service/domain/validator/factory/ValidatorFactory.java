@@ -13,6 +13,11 @@ import nnt_data.bankAccount_service.domain.validator.transaction.SavingsTransact
 import nnt_data.bankAccount_service.model.AccountType;
 import org.springframework.stereotype.Component;
 
+/**
+ * ValidatorFactory es una fábrica que proporciona validadores específicos para tipos de cuentas
+ * y transacciones. Utiliza diferentes implementaciones de AccountTypeValidator y TransactionValidator
+ * según el tipo de cuenta.
+ */
 @Component
 @RequiredArgsConstructor
 public class ValidatorFactory {

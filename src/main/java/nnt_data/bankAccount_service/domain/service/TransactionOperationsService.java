@@ -16,6 +16,11 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * AccountOperationsService es un servicio que implementa AccountOperationsPort y proporciona
+ * operaciones para la gestión de cuentas bancarias. Utiliza estrategias de creación y actualización
+ * de cuentas basadas en el tipo de cliente, así como un repositorio para la persistencia de datos.
+ */
 @Service
 @RequiredArgsConstructor
 public class TransactionOperationsService implements TransactionOperationsPort {

@@ -7,6 +7,11 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
+/**
+ * CheckingAccountValidator es una implementación de AccountTypeValidator que proporciona
+ * validaciones específicas para cuentas de tipo CHECKING. Verifica que la comisión de mantenimiento
+ * no sea negativa y que no haya límite de movimientos mensuales para este tipo de cuenta.
+ */
 @Component
 public class CheckingAccountValidator implements AccountTypeValidator {
     @Override
