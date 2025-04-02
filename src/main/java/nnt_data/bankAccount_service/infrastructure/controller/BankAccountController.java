@@ -14,6 +14,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * BankAccountController es un controlador REST que implementa AccountsApi y proporciona
  * endpoints para la gestión de cuentas bancarias y transacciones. Utiliza puertos de operaciones
@@ -25,9 +28,11 @@ public class BankAccountController implements AccountsApi {
 
     private final AccountOperationsPort accountOperationsPort;
     private final TransactionOperationsPort transactionOperationsPort;
+    private static final Logger log = LoggerFactory.getLogger(BankAccountController.class);
 
     @Override
     public Mono<ResponseEntity<Map<String, Object>>> createAccount(Mono<AccountBase> accountBase, ServerWebExchange exchange) {
+        log.info("Procesando solicitud para crear nueva cuenta bancaria");
         return accountBase
                 .flatMap(accountOperationsPort::createAccount)
                 .map(account -> {
@@ -53,6 +58,7 @@ public class BankAccountController implements AccountsApi {
      */
     @Override
     public Mono<ResponseEntity<Map<String, Object>>> createTransaction(Mono<Transaction> transaction, ServerWebExchange exchange) {
+        log.info("Iniciando registro de nueva transacción");
         return transaction
                 .flatMap(tx -> transactionOperationsPort.createTransaction(tx))
                 .map(createdTransaction -> {
@@ -71,12 +77,14 @@ public class BankAccountController implements AccountsApi {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Cuenta eliminada exitosamente");
         response.put("accountId", accountId);
+        log.info("Iniciando eliminación de cuenta con ID: {}", accountId);
         return accountOperationsPort.deleteAccount(accountId)
                 .then(Mono.just(ResponseEntity.ok().body(response)));
     }
 
     @Override
     public Mono<ResponseEntity<Map<String, Object>>> getAccountById(String accountId, ServerWebExchange exchange) {
+        log.info("Buscando cuenta por ID: {}", accountId);
         return accountOperationsPort.findAccount(accountId)
                 .map(account -> {
                     Map<String, Object> response = new HashMap<>();
@@ -88,6 +96,7 @@ public class BankAccountController implements AccountsApi {
 
     @Override
     public Mono<ResponseEntity<Map<String, Object>>> getAllAccounts(ServerWebExchange exchange) {
+        log.info("Obteniendo listado de todas las cuentas bancarias");
         return accountOperationsPort.findAllAccounts()
                 .collectList()
                 .map(accounts -> {
@@ -107,6 +116,7 @@ public class BankAccountController implements AccountsApi {
      */
     @Override
     public Mono<ResponseEntity<Map<String, Object>>> getAllTransactions(ServerWebExchange exchange) {
+        log.info("Obteniendo listado de todas las trasnaciones");
         return transactionOperationsPort.getTransactions()
                 .collectList()
                 .map(transactions -> {
@@ -128,6 +138,7 @@ public class BankAccountController implements AccountsApi {
      */
     @Override
     public Mono<ResponseEntity<Map<String, Object>>> getTransactionsByAccountId(String accountId, ServerWebExchange exchange) {
+        log.info("Trayendo transacciones by Account Id");
         return transactionOperationsPort.getTransactionsAccountId(accountId)
                 .collectList()
                 .map(transactions -> {
@@ -140,6 +151,7 @@ public class BankAccountController implements AccountsApi {
 
     @Override
     public Mono<ResponseEntity<Map<String, Object>>> updateAccount(String accountId, Mono<AccountBase> accountBase, ServerWebExchange exchange) {
+        log.info("Update Account By accountId");
         return accountBase
                 .flatMap(account -> accountOperationsPort.updateAccount(accountId, account))
                 .map(account -> {
