@@ -1,9 +1,11 @@
 package nnt_data.bankAccount_service.infrastructure.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,6 +37,17 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
 
         return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body));
+    }
+
+    @ExceptionHandler(ServerWebInputException.class)
+    public Mono<ResponseEntity<Map<String, Object>>> handleServerWebInputException(ServerWebInputException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("timestamp", LocalDateTime.now().toString());
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+        errorResponse.put("error", "Error de solicitud");
+        errorResponse.put("message", "Datos de entrada inválidos");
+
+        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse));
     }
 
     private Function<Throwable, Mono<ResponseEntity<Map<String, Object>>>> getValidationErrorResponse(

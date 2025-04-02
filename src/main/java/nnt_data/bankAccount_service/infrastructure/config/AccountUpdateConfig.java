@@ -1,8 +1,8 @@
 package nnt_data.bankAccount_service.infrastructure.config;
 
 import nnt_data.bankAccount_service.application.usecase.AccountUpdateStrategy;
-import nnt_data.bankAccount_service.application.usecase.BusinessAccountUpdateStrategy;
-import nnt_data.bankAccount_service.application.usecase.PersonalAccountUpdateStrategy;
+import nnt_data.bankAccount_service.application.usecase.business.BusinessAccountUpdateStrategy;
+import nnt_data.bankAccount_service.application.usecase.personal.PersonalAccountUpdateStrategy;
 import nnt_data.bankAccount_service.model.CustomerType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

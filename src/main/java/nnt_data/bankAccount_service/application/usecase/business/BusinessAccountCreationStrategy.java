@@ -1,5 +1,7 @@
-package nnt_data.bankAccount_service.application.usecase;
+package nnt_data.bankAccount_service.application.usecase.business;
 
+import nnt_data.bankAccount_service.application.usecase.AccountCreationStrategy;
+import nnt_data.bankAccount_service.application.usecase.BaseAccountStrategy;
 import nnt_data.bankAccount_service.domain.validator.factory.ValidatorFactory;
 import nnt_data.bankAccount_service.model.AccountBase;
 import nnt_data.bankAccount_service.model.AccountType;
@@ -39,9 +41,6 @@ public class BusinessAccountCreationStrategy extends BaseAccountStrategy impleme
     @Override
     public Mono<AccountBase> createAccount(AccountBase account) {
         return validateAccount(account)
-                .flatMap(this::validateWithFactory)
-                .onErrorMap(e -> {
-                    return e;
-                });
+                .flatMap(this::validateWithFactory);
     }
 }

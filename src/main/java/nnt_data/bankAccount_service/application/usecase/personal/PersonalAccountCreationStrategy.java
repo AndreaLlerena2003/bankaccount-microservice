@@ -1,5 +1,7 @@
-package nnt_data.bankAccount_service.application.usecase;
+package nnt_data.bankAccount_service.application.usecase.personal;
 
+import nnt_data.bankAccount_service.application.usecase.AccountCreationStrategy;
+import nnt_data.bankAccount_service.application.usecase.BaseAccountStrategy;
 import nnt_data.bankAccount_service.domain.validator.factory.ValidatorFactory;
 import nnt_data.bankAccount_service.infrastructure.persistence.repository.BankAccountRepository;
 import nnt_data.bankAccount_service.model.AccountBase;

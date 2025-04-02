@@ -10,8 +10,10 @@ import nnt_data.bankAccount_service.application.usecase.AccountCreationStrategy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * AccountOperationsService es un servicio que implementa AccountOperationsPort y proporciona
@@ -25,6 +27,7 @@ public class AccountOperationsService implements AccountOperationsPort {
     private final BankAccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final Map<CustomerType, AccountUpdateStrategy> updateStrategies;
+    private static final Logger log = LoggerFactory.getLogger(AccountOperationsService.class);
 
     public AccountOperationsService(Map<CustomerType, AccountCreationStrategy> creationStrategies,
                                     BankAccountRepository accountRepository,
@@ -77,13 +80,40 @@ public class AccountOperationsService implements AccountOperationsPort {
     }
 
     private Mono<AccountBase> executeCreationStrategy(AccountBase account) {
+        log.info("Iniciando executeCreationStrategy para cuenta tipo: {}, clienteID: {}",
+                account.getAccountType(), account.getCustomerId());
         return Mono.just(account)
                 .filter(acc -> acc.getCustomerType() != null)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("El tipo de cliente no puede ser null")))
-                .flatMap(acc -> Mono.justOrEmpty(creationStrategies.get(acc.getCustomerType()))
-                        .switchIfEmpty(Mono.error(
-                                new IllegalArgumentException("Tipo de cliente no soportado: " + acc.getCustomerType())))
-                        .flatMap(strategy -> strategy.createAccount(acc)));
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error("Error: El tipo de cliente es null");
+                    return Mono.error(new IllegalArgumentException("El tipo de cliente no puede ser null"));
+                }))
+                .flatMap(acc -> {
+                    AccountCreationStrategy strategy = creationStrategies.get(acc.getCustomerType());
+                    if (strategy == null) {
+                        log.error("Estrategia no encontrada para tipo de cliente: {}", acc.getCustomerType());
+                        return Mono.error(new IllegalArgumentException(
+                                "Tipo de cliente no soportado: " + acc.getCustomerType()));
+                    }
+                    log.debug("Usando estrategia: {} para cliente tipo: {}",
+                            strategy.getClass().getSimpleName(), acc.getCustomerType());
+                    return strategy.createAccount(acc)
+                            .doOnNext(createdAccount ->
+                                    log.info("Cuenta creada exitosamente: ID={}, tipo={}",
+                                            createdAccount.getAccountId(), createdAccount.getAccountType()))
+                            .doOnError(error ->
+                                    log.error("Error al crear cuenta: {} - {}",
+                                            error.getClass().getSimpleName(), error.getMessage()))
+                            .switchIfEmpty(Mono.defer(() -> {
+                                log.error("La estrategia devolvió un flujo vacío sin generar cuenta");
+                                return Mono.error(new RuntimeException(
+                                        "No se pudo crear la cuenta (flujo vacío para customerType=" +
+                                                acc.getCustomerType() + ")"));
+                            }));
+                })
+                .doOnError(error ->
+                        log.error("Error final en executeCreationStrategy: {} - {}",
+                                error.getClass().getSimpleName(), error.getMessage()));
     }
 
     private Mono<AccountBase> executeUpdateStrategy(String accountId,AccountBase updatedAccount) {
