@@ -7,4 +7,4 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: customers
+      MONGO_INITDB_DATABASE: bank_accounts
