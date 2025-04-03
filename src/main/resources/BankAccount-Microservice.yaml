@@ -233,15 +233,27 @@ components:
           - business
         example: "personal"
 
+    CustomerSubtype:
+        type: string
+        enum:
+          - regular
+          - vip
+          - pyme
+        example: "vip"
+
     AccountBase:
       type: object
       required:
         - accountType
         - customerId
         - customerType
+        - customerSubType
       properties:
         accountId:
           type: string
+        minimumDailyAverage:
+          type: number
+          format: double
         accountType:
           $ref: '#/components/schemas/AccountType'
         balance:
@@ -252,6 +264,8 @@ components:
           type: string
         customerId:
           type: string
+        customerSubType:
+          $ref: '#/components/schemas/CustomerSubtype'
         customerType:
           $ref: '#/components/schemas/CustomerType'
         owners:

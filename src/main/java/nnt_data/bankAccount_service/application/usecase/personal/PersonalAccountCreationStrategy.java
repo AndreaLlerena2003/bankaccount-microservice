@@ -13,10 +13,10 @@ import reactor.core.publisher.Mono;
  * PersonalAccountCreationStrategy es una implementación de la estrategia de creación de cuentas
  * personales. Esta clase extiende BaseAccountStrategy y proporciona validaciones específicas
  * para la creación de cuentas personales.
- *
  * Las cuentas personales deben tener un ID de cliente no nulo. Si la cuenta es de tipo FIXED_TERM,
  * se permite su creación sin validaciones adicionales. Para otros tipos de cuenta, se verifica que
  * el cliente no tenga ya una cuenta del mismo tipo.
+ * Validacion que el subtipo sea vip o regular
  */
 @Component
 public class PersonalAccountCreationStrategy extends BaseAccountStrategy implements AccountCreationStrategy {
@@ -35,17 +35,25 @@ public class PersonalAccountCreationStrategy extends BaseAccountStrategy impleme
             if (account.getCustomerId() == null) {
                 return Mono.error(new IllegalArgumentException("El ID del cliente no puede ser null"));
             }
-            if (account.getAccountType() == AccountType.FIXED_TERM) {
-                return Mono.just(account);
+
+            if (account.getCustomerSubType() == null) {
+                return Mono.error(new IllegalArgumentException("El subtipo de cuenta no puede ser null"));
             }
-            return accountRepository.findByCustomerIdAndAccountType(account.getCustomerId(), account.getAccountType())
-                    .hasElements()
-                    .flatMap(exists -> {
-                        if (exists) {
-                            return Mono.error(new IllegalArgumentException(
-                                    "Cliente personal ya tiene una cuenta de tipo " + account.getAccountType()));
+
+            return validateCustomerSubtype(account.getCustomerSubType(), account.getCustomerType())
+                    .flatMap(validSubtype -> {
+                        if (account.getAccountType() == AccountType.FIXED_TERM) {
+                            return Mono.just(account);
                         }
-                        return Mono.just(account);
+                        return accountRepository.findByCustomerIdAndAccountType(account.getCustomerId(), account.getAccountType())
+                                .hasElements()
+                                .flatMap(exists -> {
+                                    if (exists) {
+                                        return Mono.error(new IllegalArgumentException(
+                                                "Cliente personal ya tiene una cuenta de tipo " + account.getAccountType()));
+                                    }
+                                    return Mono.just(account);
+                                });
                     });
         });
     }

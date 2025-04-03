@@ -2,7 +2,7 @@ package nnt_data.bankAccount_service.domain.validator.account;
 
 import nnt_data.bankAccount_service.domain.validator.AccountTypeValidator;
 import nnt_data.bankAccount_service.model.AccountBase;
-import nnt_data.bankAccount_service.model.AccountType;
+import nnt_data.bankAccount_service.model.CustomerSubtype;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +26,13 @@ public class SavingsAccountValidator implements AccountTypeValidator {
                     if (acc.getMaintenanceFee() != null) {
                         return Mono.error(new IllegalArgumentException(
                                 "Las cuentas de Ahorro no tienen comisiones"));
+                    }
+                    if(acc.getCustomerSubType() == CustomerSubtype.VIP){
+                        //validacion de que tenga tarjeta de credito
+                        if(acc.getMinimumDailyAverage() == null || acc.getMinimumDailyAverage() <= 0) {
+                            return Mono.error(new IllegalArgumentException(
+                                    "La cuenta de ahorro debe especificar un monto mínimo de promedio diario"));
+                        }
                     }
                     return Mono.just(acc);
                 });

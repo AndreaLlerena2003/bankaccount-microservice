@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
  * PersonalAccountUpdateStrategy es una implementación de la estrategia de actualización de cuentas
  * personales. Esta clase extiende BaseAccountStrategy y proporciona validaciones específicas
  * para la actualización de cuentas personales.
- *
  * Las cuentas personales deben tener un ID de cliente no nulo. No se permite cambiar el tipo de cuenta
  * durante la actualización. Utiliza una fábrica de validadores para realizar validaciones adicionales
  * y un repositorio para verificar la existencia de la cuenta.
@@ -33,14 +32,15 @@ public class PersonalAccountUpdateStrategy extends BaseAccountStrategy implement
             if (account.getCustomerId() == null) {
                 return Mono.error(new IllegalArgumentException("El ID del cliente no puede ser null"));
             }
-            return accountRepository.findById(account.getAccountId())
-                    .switchIfEmpty(Mono.error(new IllegalArgumentException("Account not found with ID: " + account.getAccountId())))
-                    .flatMap(existingAccount -> {
-                        if (!existingAccount.getAccountType().equals(account.getAccountType())) {
-                            return Mono.error(new IllegalArgumentException("No se permite cambiar el tipo de cuenta"));
-                        }
-                        return Mono.just(account);
-                    });
+            return validateCustomerSubtype(account.getCustomerSubType(), account.getCustomerType())
+                    .flatMap(validSubtype -> accountRepository.findById(account.getAccountId())
+                            .switchIfEmpty(Mono.error(new IllegalArgumentException(("Account not found with ID: " + account.getAccountId()))))
+                            .flatMap(existingAccount -> {
+                                if (!existingAccount.getAccountType().equals(account.getAccountType())) {
+                                    return Mono.error(new IllegalArgumentException("No se permite cambiar el tipo de cuenta"));
+                                }
+                                return Mono.just(account);
+                            }));
         });
     }
 
