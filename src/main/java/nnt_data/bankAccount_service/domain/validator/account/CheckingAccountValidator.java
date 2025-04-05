@@ -2,6 +2,7 @@ package nnt_data.bankAccount_service.domain.validator.account;
 
 import nnt_data.bankAccount_service.domain.validator.AccountTypeValidator;
 import nnt_data.bankAccount_service.model.AccountBase;
+import nnt_data.bankAccount_service.model.CustomerSubtype;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -16,16 +17,28 @@ import java.math.BigDecimal;
 public class CheckingAccountValidator implements AccountTypeValidator {
     @Override
     public Mono<AccountBase> validate(AccountBase account) {
-            return Mono.just(account)
-                    .flatMap(acc -> {
-                        if (acc.getMaintenanceFee() == null || acc.getMaintenanceFee().compareTo(BigDecimal.ZERO) < 0) {
+        return this.hasValidLimitsAndFees(account)
+                .flatMap(valid -> Mono.just(account))
+                .flatMap(acc -> {
+                    if (acc.getCustomerSubType() != null && CustomerSubtype.PYME.equals(acc.getCustomerSubType())) {
+                        if (acc.getMaintenanceFee().compareTo(BigDecimal.ZERO) > 0) {
                             return Mono.error(new IllegalArgumentException(
-                                    "La comisión de mantenimiento no puede ser negativa"));
+                                    "Las cuentas de clientes PYME no deben tener comision de mantenimiento"));
                         }
-                        if(acc.getMonthlyMovementLimit() != null) {
-                            return Mono.error(new IllegalArgumentException("Este tipo de cuenta no tiene limite de movimientos"));
-                        }
-                        return Mono.just(acc);
-                    });
+                        return hasCreditCard(acc.getCustomerId())
+                                .filter(hasCard -> hasCard)
+                                .switchIfEmpty(Mono.error(new IllegalArgumentException("Las Pymes no pueden abrir cuenta sin tarjeta de credito")))
+                                .map(hasCard -> acc);
+                    }
+                    if (acc.getMaintenanceFee() == null || acc.getMaintenanceFee().compareTo(BigDecimal.ZERO) < 0) {
+                        return Mono.error(new IllegalArgumentException(
+                                "La comisión de mantenimiento no puede ser negativa"));
+                    }
+                    if(acc.getMonthlyMovementLimit() != null) {
+                        return Mono.error(new IllegalArgumentException("Este tipo de cuenta no tiene limite de movimientos para mantenimiento"));
+                    }
+                    return Mono.just(acc);
+                });
     }
+
 }

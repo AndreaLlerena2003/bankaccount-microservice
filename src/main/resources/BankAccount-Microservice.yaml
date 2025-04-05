@@ -251,6 +251,13 @@ components:
       properties:
         accountId:
           type: string
+        transactionMovements:
+          type: integer
+        feePerTransaction:
+          type: number
+        movementLimit:
+          type: integer
+          description: Límite de movimientos
         minimumDailyAverage:
           type: number
           format: double

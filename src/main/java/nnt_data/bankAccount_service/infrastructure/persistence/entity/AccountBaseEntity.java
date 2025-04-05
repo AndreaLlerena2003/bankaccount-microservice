@@ -31,6 +31,10 @@ public class AccountBaseEntity {
     private List<Person> owners;
     private List<Person> authorizedSigners;
     private BigDecimal maintenanceFee;
+    private BigDecimal feePerTransaction;
+    private Integer movementLimit;
     private Integer monthlyMovementLimit;
+    private Integer transactionMovements;
     private String allowedDayOfMonth;
+    private Double minimumDailyAverage;
 }

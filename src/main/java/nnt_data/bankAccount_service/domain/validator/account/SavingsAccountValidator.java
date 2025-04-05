@@ -16,13 +16,12 @@ public class SavingsAccountValidator implements AccountTypeValidator {
 
     @Override
     public Mono<AccountBase> validate(AccountBase account) {
-        return Mono.just(account)
+        return hasValidLimitsAndFees(account).flatMap(valid -> Mono.just(account))
                 .flatMap(acc -> {
                     if (acc.getMonthlyMovementLimit() == null || acc.getMonthlyMovementLimit() < 1) {
                         return Mono.error(new IllegalArgumentException(
                                 "El límite mensual de movimientos debe ser mayor a 0"));
                     }
-
                     if (acc.getMaintenanceFee() != null) {
                         return Mono.error(new IllegalArgumentException(
                                 "Las cuentas de Ahorro no tienen comisiones"));
@@ -33,6 +32,10 @@ public class SavingsAccountValidator implements AccountTypeValidator {
                             return Mono.error(new IllegalArgumentException(
                                     "La cuenta de ahorro debe especificar un monto mínimo de promedio diario"));
                         }
+                        return hasCreditCard(acc.getCustomerId())
+                                .filter(hasCard -> hasCard)
+                                .switchIfEmpty(Mono.error(new IllegalArgumentException("Los Clientes VIP no pueden abrir cuenta de ahorro sin tarjeta de credito")))
+                                .map(hasCard -> acc);
                     }
                     return Mono.just(acc);
                 });

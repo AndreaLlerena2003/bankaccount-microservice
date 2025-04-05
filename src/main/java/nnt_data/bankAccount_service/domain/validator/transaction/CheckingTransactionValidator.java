@@ -26,4 +26,5 @@ public class CheckingTransactionValidator implements TransactionValidator {
         }
         return Mono.empty();
     }
+
 }

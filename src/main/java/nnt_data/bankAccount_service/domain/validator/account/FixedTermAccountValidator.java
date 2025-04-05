@@ -11,7 +11,8 @@ import reactor.core.publisher.Mono;
  * el día de retiro permitido.
  */
 @Component
-public class FixedTermAccountValidator implements AccountTypeValidator {
+public class
+FixedTermAccountValidator implements AccountTypeValidator {
 
     @Override
     public Mono<AccountBase> validate(AccountBase account) {
