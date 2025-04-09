@@ -121,6 +121,43 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.10</version>
+				<configuration>
+					<excludes>
+						<exclude>**/api/**</exclude>
+						<exclude>**/entity/**</exclude>
+						<exclude>**/model/**</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<configLocation>src/main/resources/checkstyle.xml</configLocation>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -137,7 +174,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>nnt_data.bankAccount_service.BankAccountApiApplication</mainClass>
+					<mainClass>nnt_data.bankaccount_microservice.BankAccountApiApplication</mainClass>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -166,9 +203,9 @@
 								<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
 							</configOptions>
 
-							<packageName>nnt_data.bankAccount_service</packageName>
-							<apiPackage>nnt_data.bankAccount_service.api</apiPackage>
-							<modelPackage>nnt_data.bankAccount_service.model</modelPackage>
+							<packageName>nnt_data.bankaccount_microservice</packageName>
+							<apiPackage>nnt_data.bankaccount_microservice.api</apiPackage>
+							<modelPackage>nnt_data.bankaccount_microservice.model</modelPackage>
 						</configuration>
 					</execution>
 				</executions>
