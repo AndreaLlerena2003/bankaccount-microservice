@@ -23,7 +23,7 @@ public abstract  class BaseAccountStrategy {
     }
     protected abstract Mono<AccountBase> validateAccount(AccountBase account);
 
-    protected Mono<CustomerSubtype> validateCustomerSubtype(CustomerSubtype subtype, CustomerType customerType) {
+    public Mono<CustomerSubtype> validateCustomerSubtype(CustomerSubtype subtype, CustomerType customerType) {
         if (subtype == null) {
             return Mono.error(new IllegalArgumentException("El subtipo de cuenta no puede ser null"));
         }

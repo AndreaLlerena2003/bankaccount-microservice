@@ -23,7 +23,7 @@ public class CheckingAccountValidator implements AccountTypeValidator {
                     if (acc.getCustomerSubType() != null && CustomerSubtype.PYME.equals(acc.getCustomerSubType())) {
                         if (acc.getMaintenanceFee().compareTo(BigDecimal.ZERO) > 0) {
                             return Mono.error(new IllegalArgumentException(
-                                    "Las cuentas de clientes PYME no deben tener comision de mantenimiento"));
+                                    "Las cuentas corrientes de clientes PYME no deben tener comision de mantenimiento"));
                         }
                         return hasCreditCard(acc.getCustomerId())
                                 .filter(hasCard -> hasCard)

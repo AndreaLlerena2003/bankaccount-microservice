@@ -1,6 +1,7 @@
 package nnt_data.bankAccount_service.domain.validator;
 
 
+import nnt_data.bankAccount_service.infrastructure.persistence.entity.AccountBaseEntity;
 import reactor.core.publisher.Mono;
 
 /**
@@ -8,5 +9,11 @@ import reactor.core.publisher.Mono;
  * validaciones específicas para contextos de transacciones.
  */
 public interface TransactionValidator extends Validator<TransactionContext> {
-
+    default Mono<Boolean> hasExceededLimit(AccountBaseEntity account) {
+        if (account.getTransactionMovements() >= account.getMovementLimit()) {
+            return Mono.error(new IllegalArgumentException("El número de transacciones ha superado el límite permitido"));
+        } else {
+            return Mono.just(true);
+        }
+    }
 }
