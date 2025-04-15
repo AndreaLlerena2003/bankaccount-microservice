@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import nnt_data.bankaccount_microservice.domain.validator.TransactionContext;
 import nnt_data.bankaccount_microservice.domain.validator.TransactionValidator;
 import nnt_data.bankaccount_microservice.infrastructure.persistence.repository.TransactionRepository;
-import nnt_data.bankaccount_microservice.model.Transaction;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -17,14 +15,6 @@ import java.util.Date;
 public class SavingsTransactionValidator implements TransactionValidator {
 
     private final TransactionRepository transactionRepository;
-
-    private Mono<Void> validateWithdrawalBalance(TransactionContext context) {
-        if (context.getTransaction().getType() == Transaction.TypeEnum.WITHDRAWAL &&
-                context.getAccount().getBalance().compareTo(BigDecimal.ZERO) <= 0) {
-            return Mono.error(new IllegalArgumentException("No se puede realizar retiros con saldo cero"));
-        }
-        return Mono.empty();
-    }
 
     private boolean isInCurrentMonth(Date date) {
         Calendar cal1 = Calendar.getInstance();
@@ -39,9 +29,8 @@ public class SavingsTransactionValidator implements TransactionValidator {
 
     @Override
     public Mono<TransactionContext> validate(TransactionContext entity) {
-        return validateWithdrawalBalance(entity)
-                .then(transactionRepository.findAll()
-                        .filter(t -> t.getAccountId().equals(entity.getTransaction().getAccountId()))
+        return transactionRepository.findAll()
+                        .filter(t -> t.getSourceAccountId().equals(entity.getTransaction().getSourceAccountId()))
                         .filter(t -> isInCurrentMonth(t.getDate()))
                         .count()
                         .flatMap(count -> {
@@ -50,6 +39,6 @@ public class SavingsTransactionValidator implements TransactionValidator {
                                         "Se ha excedido el límite de movimientos mensuales"));
                             }
                             return Mono.just(entity);
-                        }));
+                        });
     }
 }

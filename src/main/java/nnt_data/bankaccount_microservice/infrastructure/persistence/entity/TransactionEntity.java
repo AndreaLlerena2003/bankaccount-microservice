@@ -22,5 +22,8 @@ public class TransactionEntity {
     private Date date;
     private Transaction.TypeEnum type;
     private BigDecimal amount;
-    private String accountId;
+    private String sourceAccountId;
+    private String destinyAccountId;
+    private Transaction.TransactionModeEnum transactionMode;
+    private Boolean isByCreditCard;
 }

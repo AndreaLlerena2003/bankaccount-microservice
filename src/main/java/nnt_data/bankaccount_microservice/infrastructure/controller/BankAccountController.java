@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import nnt_data.bankaccount_microservice.api.AccountsApi;
 import nnt_data.bankaccount_microservice.application.port.AccountOperationsPort;
 import nnt_data.bankaccount_microservice.application.port.TransactionOperationsPort;
+import nnt_data.bankaccount_microservice.domain.service.ReportingService;
 import nnt_data.bankaccount_microservice.model.AccountBase;
 import nnt_data.bankaccount_microservice.model.Transaction;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public class BankAccountController implements AccountsApi {
 
     private final AccountOperationsPort accountOperationsPort;
+    private final ReportingService reportingService;
     private final TransactionOperationsPort transactionOperationsPort;
     private static final Logger log = LoggerFactory.getLogger(BankAccountController.class);
 
@@ -128,6 +131,36 @@ public class BankAccountController implements AccountsApi {
     }
 
     /**
+     * GET /accounts/reporting/commissionReport : Obtener el reporte de comisiones
+     *
+     * @param startDate Fecha de inicio del reporte (required)
+     * @param endDate   Fecha de fin del reporte (required)
+     * @param accountId ID de la cuenta bancaria (required)
+     * @param exchange
+     * @return Reporte de comisiones generado exitosamente (status code 200)
+     * or Solicitud incorrecta (status code 400)
+     * or Recurso no encontrado (status code 404)
+     * or Error de validación (status code 422)
+     * or Error interno del servidor (status code 500)
+     */
+    @Override
+    public Mono<ResponseEntity<Map<String, Object>>> getCommissionReport(Date startDate, Date endDate, String accountId, ServerWebExchange exchange) {
+        return reportingService.generateCommissionReportByAccountId(accountId, startDate, endDate)
+                .map(report -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("report", report);
+                    return ResponseEntity.ok()
+                            .body(response);
+                })
+                .onErrorResume(e -> {
+                    if (e instanceof IllegalArgumentException) {
+                        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                    }
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+                });
+    }
+
+    /**
      * GET /accounts/{accountId}/transactions : Obtener transacciones por ID de cuenta
      *
      * @param accountId ID de la cuenta bancaria (required)
@@ -146,6 +179,32 @@ public class BankAccountController implements AccountsApi {
                     response.put("transactions", transactions);
                     return ResponseEntity.ok()
                             .body(response);
+                });
+    }
+
+    /**
+     * GET /accounts/reporting/salarySummary/{customerId} : Obtener el reporte de salarios promedios para un cliente
+     *
+     * @param customerId ID del usuario (required)
+     * @param exchange
+     * @return Resumen del usuario especificado (status code 200)
+     * or Recurso no encontrado (status code 404)
+     * or Error interno del servidor (status code 500)
+     */
+    @Override
+    public Mono<ResponseEntity<Map<String, Object>>> getSummarySalaryByCustomerId(String customerId, ServerWebExchange exchange) {
+        return reportingService.generateResumeOfAvarageBalance(customerId)
+                .collectList()
+                .map(resumes -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("resume", resumes);
+                    return ResponseEntity.ok(response);
+                })
+                .onErrorResume(e -> {
+                    if (e instanceof IllegalArgumentException) {
+                        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                    }
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
                 });
     }
 

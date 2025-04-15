@@ -7,6 +7,7 @@ servers:
   - url: https:///localhost:8080
     description: Servidor principal
 
+
 paths:
   /accounts:
     post:
@@ -130,6 +131,49 @@ paths:
           '500':
             $ref: '#/components/responses/InternalServerError'
 
+  /accounts/reporting/commissionReport:
+    get:
+      summary: Obtener el reporte de comisiones
+      operationId: getCommissionReport
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          description: Fecha de inicio del reporte
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          description: Fecha de fin del reporte
+          schema:
+            type: string
+            format: date
+        - name: accountId
+          in: query
+          required: true
+          description: ID de la cuenta bancaria
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reporte de comisiones generado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /accounts/transactions:
     post:
       summary: Registrar una nueva transacción en la cuenta
@@ -198,6 +242,195 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /accounts/reporting/salarySummary/{customerId}:
+      get:
+        summary: Obtener el reporte de salarios promedios para un cliente
+        operationId: getSummarySalaryByCustomerId
+        parameters:
+          - name: customerId
+            in: path
+            required: true
+            description: ID del usuario
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Resumen del usuario especificado
+            content:
+              application/json:
+                schema:
+                  type: object
+                  additionalProperties: true
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '500':
+            $ref: '#/components/responses/InternalServerError'
+
+  /debitCard/create:
+    post:
+      summary: Crear tarjeta de debito
+      operationId: createDebitCard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DebitCard'
+      responses:
+        '201':
+          description: Tarjeat de debito creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /debitCard/associeteAccountToCard:
+    put:
+      summary: Asociar cuenta a tarjeta de debito
+      operationId: associeteAccountToCard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cardId:
+                  type: string
+                  description: ID de la tarjeta de débito
+                accountId:
+                  type: string
+                  description: ID de la cuenta a asociar
+              required:
+                - cardId
+                - accountId
+      responses:
+        '200':
+          description: Tarjeta actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /debitCard/createTransaction:
+    post:
+      summary: Crear transacción desde cuenta de débito
+      operationId: createTransactionFromDebitCard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cardNumber:
+                  type: string
+                  description: Número de la tarjeta de débito
+                transaction:
+                  $ref: '#/components/schemas/Transaction'
+              required:
+                - cardNumber
+                - transaction
+      responses:
+        '200':
+          description: Transacción creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /debitCard/{cardNumber}/getPrimaryAccountBalance:
+    get:
+      summary: Obtiene el balance de la cuenta principal asociada
+      description: Devuelve el balance de la cuenta principal asociada a la tarjeta de débito especificada
+      operationId: getPrimaryAccountBalance
+      parameters:
+        - name: cardNumber
+          in: path
+          description: Número de la tarjeta de débito
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reporte de transacciones generado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+        '400':
+          description: Número de tarjeta inválido o no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /debitCard/{cardNumber}/transactions:
+    get:
+      summary: Obtiene los últimos 10 movimientos de una tarjeta de débito
+      description: Devuelve un reporte con las últimas 10 transacciones realizadas con la tarjeta de débito especificada
+      operationId: getLastTenTransactions
+      parameters:
+        - name: cardNumber
+          in: path
+          description: Número de la tarjeta de débito
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reporte de transacciones generado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionReport'
+        '400':
+          description: Número de tarjeta inválido o no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 
 components:
   schemas:
@@ -240,6 +473,30 @@ components:
           - vip
           - pyme
         example: "vip"
+
+    DebitCard:
+        type: object
+        required:
+            - cardNumber
+            - expirationDate
+            - primaryAccountId
+        properties:
+            id:
+                type: string
+            cardNumber:
+                type: string
+                pattern: ^[0-9]{16}$
+                example: "1234567812345678"
+            expirationDate:
+                type: string
+                format: date-time
+                example: "2025-12-31"
+            primaryAccountId:
+                type: string
+            associatedAccountIds:
+                type: array
+                items:
+                    type: string
 
     AccountBase:
       type: object
@@ -311,18 +568,98 @@ components:
           required:
             - allowedDayOfMonth
 
+    CommissionReport:
+        type: object
+        required:
+            - accountId
+            - totalCommission
+            - transactionCount
+            - startDate
+            - endDate
+        properties:
+            accountId:
+              type: string
+            totalCommission:
+              type: number
+            transactionCount:
+              type: integer
+              format: int64
+            startDate:
+              type: string
+              format: date-time
+            endOfDate:
+              type: string
+              format: date-time
+
+    AccountResume:
+      type: object
+      required:
+        - accountId
+        - accountType
+        - averageBalance
+      properties:
+        accountId:
+          type: string
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+        averageBalance:
+          type: number
+          example: 1500.75
+
+    TransactionReport:
+      type: object
+      description: Reporte de transacciones de una tarjeta de débito
+      properties:
+        cardNumber:
+          type: string
+          description: Número de la tarjeta de débito
+          example: "4539123456789012"
+        generationDate:
+          type: string
+          format: date-time
+          description: Fecha y hora de generación del reporte
+          example: "2025-04-14T14:30:45"
+        transactions:
+          type: array
+          description: Lista de transacciones incluidas en el reporte
+          items:
+            $ref: '#/components/schemas/Transaction'
+        transactionCount:
+          type: integer
+          description: Número total de transacciones en el reporte
+          example: 10
+        oldestTransactionDate:
+          type: string
+          format: date-time
+          description: Fecha de la transacción más antigua en el reporte
+          example: "2025-03-15T09:23:11"
+        newestTransactionDate:
+          type: string
+          format: date-time
+          description: Fecha de la transacción más reciente en el reporte
+          example: "2025-04-13T18:45:22"
+
     Transaction:
       type: object
       required:
         - type
         - amount
-        - accountId
+        - sourceAccountId
+        - transactionMode
       properties:
+        isByCreditCard:
+            type: boolean
+            example: false
         transactionId:
           type: string
         date:
           type: string
           format: date-time
+        transactionMode:
+          type: string
+          enum:
+            - single_account
+            - inter_account
         type:
           type: string
           enum:
@@ -331,7 +668,9 @@ components:
           example: "deposit"
         amount:
           type: number
-        accountId:
+        sourceAccountId:
+          type: string
+        destinyAccountId:
           type: string
 
     Error:

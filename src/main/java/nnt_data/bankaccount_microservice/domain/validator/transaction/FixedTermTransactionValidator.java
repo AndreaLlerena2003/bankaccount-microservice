@@ -19,7 +19,7 @@ public class FixedTermTransactionValidator implements TransactionValidator {
     private final TransactionRepository transactionRepository;
     @Override
     public Mono<TransactionContext> validate(TransactionContext entity) {
-        return validateWithdrawalBalance(entity)
+        return Mono.just(entity)
                 .then(Mono.defer(() -> {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(entity.getTransaction().getDate());
@@ -30,7 +30,7 @@ public class FixedTermTransactionValidator implements TransactionValidator {
                                 "Solo se permiten transacciones el día " + entity.getAccount().getAllowedDayOfMonth()));
                     }
                     return transactionRepository.findAll()
-                            .filter(t -> t.getAccountId().equals(entity.getTransaction().getAccountId()))
+                            .filter(t -> t.getSourceAccountId().equals(entity.getTransaction().getSourceAccountId()))
                             .filter(t -> isSameDay(t.getDate(), entity.getTransaction().getDate()))
                             .count()
                             .flatMap(count -> {
@@ -41,14 +41,6 @@ public class FixedTermTransactionValidator implements TransactionValidator {
                                 return Mono.just(entity);
                             });
                 }));
-    }
-
-    private Mono<Void> validateWithdrawalBalance(TransactionContext context) {
-        if (context.getTransaction().getType() == Transaction.TypeEnum.WITHDRAWAL &&
-                context.getAccount().getBalance().compareTo(BigDecimal.ZERO) <= 0) {
-            return Mono.error(new IllegalArgumentException("No se puede realizar retiros con saldo cero"));
-        }
-        return Mono.empty();
     }
 
     private boolean isSameDay(Date date1, Date date2) {

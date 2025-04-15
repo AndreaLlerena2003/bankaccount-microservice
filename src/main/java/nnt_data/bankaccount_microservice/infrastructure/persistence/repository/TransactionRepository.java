@@ -4,6 +4,9 @@ import nnt_data.bankaccount_microservice.infrastructure.persistence.entity.Trans
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 
+import java.util.Date;
+import java.util.List;
+
 /**
  * Interfaz TransactionRepository que extiende ReactiveMongoRepository para manejar
  * operaciones CRUD de manera reactiva sobre la colección de transacciones en MongoDB.
@@ -18,5 +21,12 @@ import reactor.core.publisher.Flux;
  */
 public interface TransactionRepository extends ReactiveMongoRepository<TransactionEntity, String> {
 
-    Flux<TransactionEntity> findByAccountId(String accountId);
+    Flux<TransactionEntity> findBySourceAccountId(String sourceAccountId);
+
+    Flux<TransactionEntity> findBySourceAccountIdOrDestinyAccountIdAndDateBetween(
+            String sourceAccountId,
+            String destinyAccountId,
+            Date startDate,
+            Date endDate
+    );
 }
