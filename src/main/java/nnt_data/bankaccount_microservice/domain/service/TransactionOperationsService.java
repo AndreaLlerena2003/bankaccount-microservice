@@ -195,25 +195,18 @@ public class TransactionOperationsService implements TransactionOperationsPort {
     private Mono<TransactionEntity> handleDepositTransaction(
             AccountBaseEntity sourceAccount, AccountBaseEntity destinyAccount,
             Transaction transaction, BigDecimal commissionAmount) {
-
-        // Calculate total amount to deduct including commission
         BigDecimal totalDebit = transaction.getAmount().add(commissionAmount);
-
-        // Check if source account has sufficient balance
         if (sourceAccount.getBalance().compareTo(totalDebit) < 0) {
             return Mono.error(new IllegalArgumentException(
                     "Saldo insuficiente para realizar la transacción y pagar la comisión"));
         }
 
-        // Update account balances
         sourceAccount.setBalance(sourceAccount.getBalance().subtract(totalDebit));
         destinyAccount.setBalance(destinyAccount.getBalance().add(transaction.getAmount()));
         sourceAccount.setTransactionMovements(sourceAccount.getTransactionMovements() + 1);
 
-        // Save accounts and create transaction record
         return saveAccountsAndCreateTransaction(sourceAccount, destinyAccount, transaction)
                 .flatMap(savedTransaction -> {
-                    // Apply commission logic if commission amount is greater than zero
                     if (commissionAmount.compareTo(BigDecimal.ZERO) > 0) {
                         CommissionEntity commission = CommissionEntity.builder()
                                 .transactionId(savedTransaction.getTransactionId())

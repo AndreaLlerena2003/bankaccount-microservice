@@ -3,10 +3,8 @@ package nnt_data.bankaccount_microservice.domain.service;
 import lombok.RequiredArgsConstructor;
 import nnt_data.bankaccount_microservice.domain.utils.BalanceCalculator;
 import nnt_data.bankaccount_microservice.domain.utils.DateUtils;
-import nnt_data.bankaccount_microservice.infrastructure.persistence.entity.AccountBaseEntity;
 import nnt_data.bankaccount_microservice.infrastructure.persistence.entity.CommissionEntity;
 import nnt_data.bankaccount_microservice.infrastructure.persistence.entity.TransactionEntity;
-import nnt_data.bankaccount_microservice.infrastructure.persistence.mapper.DebitCardMapper;
 import nnt_data.bankaccount_microservice.infrastructure.persistence.mapper.TransactionMapper;
 import nnt_data.bankaccount_microservice.infrastructure.persistence.repository.BankAccountRepository;
 import nnt_data.bankaccount_microservice.infrastructure.persistence.repository.CommissionRepository;
@@ -40,7 +38,6 @@ public class ReportingService {
     private final CommissionRepository commissionRepository;
     private final TransactionMapper transactionMapper;
     private final DebitCardRepository debitCardRepository;
-    private final DebitCardMapper debitCardMapper;
 
     public Flux<AccountResume> generateResumeOfAvarageBalance(String customerId) {
         LocalDate now = LocalDate.now();
