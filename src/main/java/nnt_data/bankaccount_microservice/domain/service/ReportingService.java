@@ -98,6 +98,37 @@ public class ReportingService {
         return sumOfBalances.divide(BigDecimal.valueOf(daysInPeriod), RoundingMode.HALF_UP);
     }
 
+    public Mono<AccountResume> generateResumeOfAvarageBalanceForPeriodByAccountId(String accountId, Date startDate, Date endDate) {
+        LocalDate startLocalDate = DateUtils.toLocalDate(startDate);
+        LocalDate endLocalDate = DateUtils.toLocalDate(endDate);
+
+        return bankAccountRepository.findById(accountId)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("No se encontró la cuenta con ID: " + accountId)))
+                .flatMap(account ->
+                        transactionRepository.findBySourceAccountIdOrDestinyAccountIdAndDateBetween(
+                                        account.getAccountId(),
+                                        account.getAccountId(),
+                                        startDate,
+                                        endDate
+                                )
+                                .collectList()
+                                .map(transactions -> {
+                                    BigDecimal averageBalance = calculateSalaryAverage(
+                                            account.getBalance(),
+                                            transactions,
+                                            startLocalDate,
+                                            endLocalDate,
+                                            account.getAccountId()
+                                    );
+                                    return new AccountResume(account.getAccountId(), account.getAccountType(), averageBalance);
+                                })
+                )
+                .onErrorResume(e -> {
+                    System.out.println("Error generating resume of average balance for account ID: " + e.getMessage());
+                    return Mono.error(new IllegalArgumentException("Error al obtener el resumen de la cuenta: " + e.getMessage(), e));
+                });
+    }
+
     public Mono<CommissionReport> generateCommissionReportByAccountId(String accountId, Date startDate, Date endDate) {
         LocalDate startLocalDate = DateUtils.toLocalDate(startDate);
         LocalDate endLocalDate = DateUtils.toLocalDate(endDate);

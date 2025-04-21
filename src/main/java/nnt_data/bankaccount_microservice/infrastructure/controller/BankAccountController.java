@@ -6,6 +6,7 @@ import nnt_data.bankaccount_microservice.application.port.AccountOperationsPort;
 import nnt_data.bankaccount_microservice.application.port.TransactionOperationsPort;
 import nnt_data.bankaccount_microservice.domain.service.ReportingService;
 import nnt_data.bankaccount_microservice.model.AccountBase;
+import nnt_data.bankaccount_microservice.model.PostSalarySummaryForPeriodRequest;
 import nnt_data.bankaccount_microservice.model.Transaction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -160,6 +161,8 @@ public class BankAccountController implements AccountsApi {
                 });
     }
 
+
+
     /**
      * GET /accounts/{accountId}/transactions : Obtener transacciones por ID de cuenta
      *
@@ -182,6 +185,32 @@ public class BankAccountController implements AccountsApi {
                 });
     }
 
+    /**
+     * POST /accounts/reporting/salarySummaryForPeriod : reporte
+     *
+     * @param postSalarySummaryForPeriodRequest (required)
+     * @param exchange
+     * @return Resumen del usuario especificado (status code 200)
+     * or Solicitud incorrecta (status code 400)
+     * or Recurso no encontrado (status code 404)
+     * or Error interno del servidor (status code 500)
+     */
+    @Override
+    public Mono<ResponseEntity<Map<String, Object>>> postSalarySummaryForPeriod(Mono<PostSalarySummaryForPeriodRequest> postSalarySummaryForPeriodRequest, ServerWebExchange exchange) {
+        return postSalarySummaryForPeriodRequest
+                .flatMap(request -> reportingService.generateResumeOfAvarageBalanceForPeriodByAccountId(request.getAccountId(), request.getStartDate(), request.getEndDate())
+                        .map(creditResumes -> {
+                            Map<String, Object> response = new HashMap<>();
+                            response.put("accountId", request.getAccountId());
+                            response.put("BankAccountResumes", creditResumes);
+                            return ResponseEntity.ok(response);
+                        })
+                        .onErrorResume(e -> {
+                            Map<String, Object> errorResponse = new HashMap<>();
+                            errorResponse.put("error", e.getMessage());
+                            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse));
+                        }));
+    }
     /**
      * GET /accounts/reporting/salarySummary/{customerId} : Obtener el reporte de salarios promedios para un cliente
      *

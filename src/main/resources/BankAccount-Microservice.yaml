@@ -242,6 +242,47 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /accounts/reporting/salarySummaryForPeriod:
+    post:
+      summary: reporte
+      operationId: postSalarySummaryForPeriod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - accountId
+                - startDate
+                - endDate
+              properties:
+                accountId:
+                  type: string
+                  description: ID de la cuenta
+                startDate:
+                  type: string
+                  format: date-time
+                  description: Fecha de inicio del periodo
+                endDate:
+                  type: string
+                  format: date-time
+                  description: Fecha de fin del periodo
+      responses:
+        '200':
+          description: Resumen del usuario especificado
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /accounts/reporting/salarySummary/{customerId}:
       get:
         summary: Obtener el reporte de salarios promedios para un cliente
