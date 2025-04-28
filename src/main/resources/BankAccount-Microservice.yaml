@@ -680,6 +680,23 @@ components:
           description: Fecha de la transacción más reciente en el reporte
           example: "2025-04-13T18:45:22"
 
+
+    YankiTransactionRequest:
+      type: object
+      required:
+        - debitCardIdOrigin
+        - debitCardIdDestiny
+        - transaction
+      properties:
+        debitCardIdOrigin:
+          type: string
+          description: ID de la tarjeta de débito
+        debitCardIdDestiny:
+          type: string
+          description: ID de la tarjeta de débito
+        transaction:
+          $ref: '#/components/schemas/Transaction'
+
     Transaction:
       type: object
       required:
@@ -713,6 +730,26 @@ components:
           type: string
         destinyAccountId:
           type: string
+
+
+    DebitCardValidationRequest:
+      type: object
+      required:
+        - debitCardId
+      properties:
+        debitCardId:
+          type: string
+          description: ID de la tarjeta de débito
+
+    DebitCardValidationResponse:
+      type: object
+      properties:
+        isValid:
+          type: boolean
+          description: Indica si la tarjeta es válida o no
+        message:
+          type: string
+          description: Mensaje adicional sobre la validación
 
     Error:
       type: object

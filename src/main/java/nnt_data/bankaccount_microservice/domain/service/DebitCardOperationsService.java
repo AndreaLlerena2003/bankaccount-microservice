@@ -5,6 +5,8 @@ import nnt_data.bankaccount_microservice.infrastructure.persistence.mapper.Debit
 import nnt_data.bankaccount_microservice.infrastructure.persistence.repository.BankAccountRepository;
 import nnt_data.bankaccount_microservice.infrastructure.persistence.repository.DebitCardRepository;
 import nnt_data.bankaccount_microservice.model.DebitCard;
+import nnt_data.bankaccount_microservice.model.DebitCardValidationRequest;
+import nnt_data.bankaccount_microservice.model.DebitCardValidationResponse;
 import nnt_data.bankaccount_microservice.model.Transaction;
 
 import org.springframework.stereotype.Service;
@@ -25,6 +27,18 @@ public class DebitCardOperationsService {
     private final TransactionOperationsService transactionOperationsService;
 
 
+    public Mono<DebitCardValidationResponse> existDebitCard(DebitCardValidationRequest debitCardValidationRequest) {
+        return debitCardRepository.findById(debitCardValidationRequest.getDebitCardId())
+                .map(debitCard -> new DebitCardValidationResponse()
+                        .isValid(true)
+                        .message("La tarjeta de débito existe y es válida"))
+                .defaultIfEmpty(new DebitCardValidationResponse()
+                        .isValid(false)
+                        .message("La tarjeta de débito no existe"))
+                .onErrorResume(e -> Mono.just(new DebitCardValidationResponse()
+                        .isValid(false)
+                        .message("Error al validar la tarjeta: " + e.getMessage())));
+    }
 
     public Mono<BigDecimal> getPrimaryAccountBalance(String cardNumber) {
         return debitCardRepository.findByCardNumber(cardNumber)
@@ -104,6 +118,51 @@ public class DebitCardOperationsService {
                 });
     }
 
+    public Mono<Transaction> processDebitCardTransactionFromId(String cardId, String destinyCardId, Transaction transaction) {
+        return Mono.zip(
+                findDebitCardAndValidate(cardId),
+                findDebitCardAndValidate(destinyCardId)
+        ).flatMap(tuple -> {
+            DebitCard sourceCard = tuple.getT1();
+            DebitCard destinyCard = tuple.getT2();
+
+            String sourceAccountId = sourceCard.getPrimaryAccountId();
+            String destinyAccountId = destinyCard.getPrimaryAccountId();
+
+            Transaction txWithAccounts = prepareTransactionCards(transaction, sourceAccountId, destinyAccountId);
+
+            return executeTransactionWithFallback(txWithAccounts, sourceCard);
+        });
+    }
+
+    private Mono<DebitCard> findDebitCardAndValidate(String cardId) {
+        return debitCardRepository.findById(cardId)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException(
+                        "La tarjeta de débito con número " + cardId + " no existe")))
+                .flatMap(debitCardMapper::toDomain);
+    }
+
+    private Mono<Transaction> executeTransactionWithFallback(Transaction transaction, DebitCard sourceCard) {
+        return transactionOperationsService.createTransaction(transaction)
+                .onErrorResume(e -> {
+                    if (isInsufficientFundsError(e)) {
+                        Flux<String> associatedAccountIdsFlux = getAssociatedAccountsFlux(sourceCard);
+                        return tryWithAssociatedAccounts(associatedAccountIdsFlux, transaction);
+                    }
+                    return Mono.error(e);
+                });
+    }
+
+    private boolean isInsufficientFundsError(Throwable e) {
+        return e instanceof IllegalArgumentException &&
+                (e.getMessage().contains("insuficiente") || e.getMessage().contains("comisión"));
+    }
+
+    private Flux<String> getAssociatedAccountsFlux(DebitCard debitCard) {
+        return debitCard.getAssociatedAccountIds() != null ?
+                Flux.fromIterable(debitCard.getAssociatedAccountIds()) :
+                Flux.empty();
+    }
     public Mono<Transaction> processDebitCardTransaction(String cardNumber, Transaction transaction) {
         return debitCardRepository.findByCardNumber(cardNumber)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException(
@@ -137,6 +196,19 @@ public class DebitCardOperationsService {
         newTransaction.setTransactionMode(baseTransaction.getTransactionMode());
         newTransaction.setDate(baseTransaction.getDate());
         newTransaction.setDestinyAccountId(baseTransaction.getDestinyAccountId());
+        newTransaction.setSourceAccountId(accountId);
+        newTransaction.setIsByCreditCard(true);
+
+        return newTransaction;
+    }
+
+    private Transaction prepareTransactionCards(Transaction baseTransaction, String accountId, String destinyAccount) {
+        Transaction newTransaction = new Transaction();
+        newTransaction.setAmount(baseTransaction.getAmount());
+        newTransaction.setType(baseTransaction.getType());
+        newTransaction.setTransactionMode(baseTransaction.getTransactionMode());
+        newTransaction.setDate(baseTransaction.getDate());
+        newTransaction.setDestinyAccountId(destinyAccount);
         newTransaction.setSourceAccountId(accountId);
         newTransaction.setIsByCreditCard(true);
 

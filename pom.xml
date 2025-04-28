@@ -29,6 +29,12 @@
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>confluent</id>
+			<url>https://packages.confluent.io/maven/</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -37,6 +43,50 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>3.6.1</version>
+		</dependency>
+
+		<!-- Confluent Kafka JSON Serializer/Deserializer -->
+		<dependency>
+			<groupId>io.confluent</groupId>
+			<artifactId>kafka-json-serializer</artifactId>
+			<version>7.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
+		<!-- Confluent Avro Serializer/Deserializer -->
+		<dependency>
+			<groupId>io.confluent</groupId>
+			<artifactId>kafka-avro-serializer</artifactId>
+			<version>7.5.1</version>
+		</dependency>
+
+		<!-- Apache Avro -->
+		<dependency>
+			<groupId>org.apache.avro</groupId>
+			<artifactId>avro</artifactId>
+			<version>1.11.3</version>
+		</dependency>
+
+		<!-- Schema Registry Client -->
+		<dependency>
+			<groupId>io.confluent</groupId>
+			<artifactId>kafka-schema-registry-client</artifactId>
+			<version>7.5.1</version>
+		</dependency>
+
+		<!-- Spring Kafka (opcional, si usas Spring) -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>3.1.1</version>
 		</dependency>
 
 		<dependency>
@@ -77,11 +127,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.14</version>
-		</dependency>
+
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
@@ -93,11 +139,15 @@
 			<artifactId>jackson-databind-nullable</artifactId>
 			<version>0.2.3</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-webflux-ui -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-webflux-ui</artifactId>
-			<version>1.8.0</version>
+			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>2.2.20</version>
 		</dependency>
 
 		<dependency>
