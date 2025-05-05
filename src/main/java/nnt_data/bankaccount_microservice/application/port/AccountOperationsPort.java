@@ -10,6 +10,7 @@ public interface AccountOperationsPort {
     Mono<AccountBase> findAccount(String accountId);
     Flux<AccountBase> findAllAccounts();
     Mono<Void> deleteAccount(String accountId);
+    Mono<Boolean> existsById(String accountId);
 }
 
 /**

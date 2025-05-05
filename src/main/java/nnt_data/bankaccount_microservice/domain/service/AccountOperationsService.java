@@ -62,6 +62,14 @@ public class AccountOperationsService implements AccountOperationsPort {
     }
 
     @Override
+    public Mono<Boolean> existsById(String accountId) {
+        return accountRepository.existsById(accountId)
+                .doOnNext(exists -> log.info("Verificación de existencia de cuenta {}: {}", accountId, exists))
+                .doOnError(error -> log.error("Error al verificar existencia de cuenta {}: {}",
+                        accountId, error.getMessage()));
+    }
+
+    @Override
     public Flux<AccountBase> findAllAccounts() {
         return accountRepository.findAll()
                 .flatMap(accountMapper::toDomain);
